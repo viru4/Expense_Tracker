@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
+from dotenv import load_dotenv
 
 db= SQLAlchemy()
 
@@ -11,6 +12,7 @@ bcrypt= Bcrypt()
 
 def create_app():
     app= Flask(__name__)
+    load_dotenv()
     
     app.config.from_object("app.config.Config")
     
@@ -26,7 +28,7 @@ def create_app():
     
     #import blueprint
     from app.routes.expense_routes import expense_bp 
-    from app.routes.expense_routes import auth_bp
+    from app.routes.auth_routes import auth_bp
     
     # register the blueprint
     app.register_blueprint(expense_bp)
