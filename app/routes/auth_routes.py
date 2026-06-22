@@ -1,6 +1,6 @@
 from flask import request, jsonify, Blueprint
 from flask_jwt_extended import create_access_token
-
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.user_model import User
 from app import db, bcrypt
 
@@ -50,7 +50,8 @@ def login():
         return jsonify({
             "error": "invalid emails or password"
         }),401
-# check password
+        
+    # check password
     is_correct_password = bcrypt.check_password_hash(
         user.password,
         password
@@ -61,9 +62,20 @@ def login():
         }),401
         
     # create jwt token
-    access_token = create_access_token(identity = user.id)
+    access_token = create_access_token(identity = str(user.id))
     return jsonify({
         "message": "login successful",
         "access_token": access_token
     }),200
         
+# GET Profile route
+@auth_bp.route("/profile", methods=["GET"])
+@jwt_required()
+def profile():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+
+    return jsonify({
+        "message": "Protected route accessed",
+        "user": user.to_dict()
+    })
