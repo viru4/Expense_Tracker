@@ -80,3 +80,19 @@ def validate_date_filter(start_date, end_date):
         except ValueError:
             errors["end_date"] = "Invalid end date format. Use DD-MM-YYYY."
     return errors
+
+
+def validate_pagination(page, per_page):
+    errors = {}
+    
+    if page is not None:
+        if not isinstance(page, int) or page < 1:
+            errors["page"] = "Page must be a positive integer"
+            
+    if per_page is not None:
+        if not isinstance(per_page, int) or per_page < 1:
+            errors["per_page"] = "Per page must be a positive integer"
+        elif per_page > 100:
+            errors["per_page"] = "Per page must be under 100"
+            
+    return errors

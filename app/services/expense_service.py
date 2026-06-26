@@ -1,6 +1,6 @@
 from app.repositories.expense_repo import ExpenseRepository
 from werkzeug.exceptions import NotFound
-
+from app.utils.pagination_helper import paginate_response
 
 class ExpenseService:
 
@@ -12,15 +12,21 @@ class ExpenseService:
         return ExpenseRepository.create_expense(data, current_user_id)
     
     
+    #get all expense with pagination
     @staticmethod
-    def get_expenses( current_user_id):
+    def get_expenses( current_user_id, page, per_page):
         
         # sort expenses by date in descending order
-        expenses = ExpenseRepository.get_expenses(current_user_id)
-        if not expenses:
+        pagination = ExpenseRepository.get_expenses(
+            current_user_id =current_user_id, 
+            page=page, 
+            per_page=per_page)
+        
+        if not pagination.items:
             raise NotFound("No expenses found")
         
-        return expenses
+        return paginate_response(pagination, [expense.to_dict() for expense in pagination.items])
+    
     
     @staticmethod
     def get_single_expense(id, current_user_id):
@@ -56,22 +62,56 @@ class ExpenseService:
     
     # filtering thee expenses by date range
     @staticmethod
-    def filter_expenses_by_date(start_date, end_date, current_user_id):
+    def filter_expenses_by_date(start_date, end_date, current_user_id, page, per_page):
         
-        expenses = ExpenseRepository.filter_expenses(current_user_id, start_date, end_date)
+        pagination = ExpenseRepository.filter_expenses(
+            current_user_id=current_user_id,
+            start_date=start_date,
+            end_date=end_date,
+            page=page,
+            per_page=per_page
+        )
         
-        if not expenses:
+        if not pagination.items:
             raise NotFound("No expenses found in the given date range")
         
-        return expenses
-    
-    
+        return paginate_response(pagination, [expense.to_dict() for expense in pagination.items]) 
+
+
     @staticmethod
-    def get_monthly_expense_summary(current_user_id, year, month):
+    def get_monthly_expense_summary(current_user_id, year, month, page, per_page):
         
         if not year or not month:
             raise NotFound("Year and month are required")
-        summary = ExpenseRepository.get_monthly_summary(current_user_id, year, month)
-        
-        return summary
+        pagination, summary = ExpenseRepository.get_monthly_summary(current_user_id, year, month, page, per_page)
+
+        if not pagination.items:
+            raise NotFound("No expenses found for the given month and year")
+
+        # attach current page's expenses to the summary and return a paginated response
+        data = summary.copy()
+        data["expenses"] = [expense.to_dict() for expense in pagination.items]
+
+        return paginate_response(pagination, data)
     
+    
+    @staticmethod
+    def search_expenses(current_user_id, keyword, page, per_page):
+        
+        pagination = ExpenseRepository.search_expenses(
+            current_user_id=current_user_id,
+            keyword=keyword,
+            page=page,
+            per_page=per_page
+        )
+        
+        if not pagination.items:
+            raise NotFound("No expenses found with the given keyword")
+        
+        return paginate_response(pagination, [expense.to_dict() for expense in pagination.items])
+    
+    
+    @staticmethod
+    def get_analytics(current_user_id):
+        analytics = ExpenseRepository.get_analytics(current_user_id)
+        return analytics
