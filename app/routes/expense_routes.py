@@ -42,7 +42,11 @@ def get_expenses():
     
     expenses = ExpenseService.get_expenses(current_user_id)
     
-    return jsonify([expense.to_dict() for expense in expenses]),200
+    return jsonify({
+        "number_of_expenses": len(expenses),
+        "message": "expenses retrieved successfully",
+        "expenses": [expense.to_dict() for expense in expenses]
+    })
         
         
 # getting a single expense
