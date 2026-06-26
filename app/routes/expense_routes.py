@@ -3,136 +3,126 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity
 )
-from app.models.expense_model import Expense
+from werkzeug.exceptions import NotFound, Forbidden, BadRequest
+from app.services.expense_service import ExpenseService
+from app.validators.expense_validator import validate_expense, validate_expense_update, validate_date_filter
+
 from app import db
 
 expense_bp = Blueprint("expense_bp", __name__)
 
-# @expense_bp.route("/expenses", methods=["GET"])
-# def test_route():
-#     return jsonify({
-#         "messsage": "expenses routes working"
-#     })
-    
     
 # creating an expense
 @expense_bp.route("/expenses", methods=["POST"])
 @jwt_required()
 def add_expense():
-    user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
+    data = request.get_json()
     
-    data= request.get_json()
-    
-    new_expense= Expense(
-        title= data["title"],
-        amount = data["amount"],
-        category = data.get("category"),
-        user_id = user_id
-    )
-    
-    db.session.add(new_expense)
-    db.session.commit()
+    errors = validate_expense(data)
+    if errors:
+        return jsonify({
+            "errors": errors
+        }),400
+        
+    expense = ExpenseService.create_expense(data, current_user_id)
     
     return jsonify({
         "message": "expense added successfully",
-        "expense": new_expense.to_dict()
+        "expense": expense.to_dict()
         }),201
     
     
-# fetching the expenses of an id
+# GET all expenses
 @expense_bp.route("/expenses", methods=["GET"])
 @jwt_required()
 def get_expenses():
-    user_id = get_jwt_identity()
     
-    expenses= Expense.query.filter_by(user_id = user_id).all()
-    # expense_list=[]
-    # for expense in expenses:
-    #     expense_list.append(expense.to_dict())
-    expense_list=[expense.to_dict() for expense in expenses]
-    return jsonify(expense_list)
+    current_user_id = int(get_jwt_identity())
+    
+    expenses = ExpenseService.get_expenses(current_user_id)
+    
+    return jsonify([expense.to_dict() for expense in expenses]),200
         
         
 # getting a single expense
 @expense_bp.route("/expenses/<int:id>", methods=["GET"])
 @jwt_required()
 def get_single_expense(id):
-    user_id = get_jwt_identity()
     
-    # method 1: no need to  check manually check the ownership using if
-    # more secure and cleaner approach
-    expense = Expense.query.filter_by(id = id, user_id = user_id).first()
+    current_user_id = int(get_jwt_identity())
     
-    # method 2: need to check the ownership manually using if 
-    # expense = Expense.query.get(id)
-    
-    if not expense:
-        return jsonify({
-            "error": "expense not found"
-        }), 404
-        
-    # if expense.user_id != user_id:
-    #     return jsonify({
-    #         "error": "unauthorized"
-    #     }),403
-        
-    return jsonify(expense.to_dict())
+    expense = ExpenseService.get_single_expense(id, current_user_id)
 
-# updating the expense by id
+    return jsonify(expense.to_dict()),200
+
+
+# updating the expense
 @expense_bp.route("/expenses/<int:id>", methods=["PUT"])
 @jwt_required()
 def update_expense(id):
+    current_user_id= int(get_jwt_identity())
     
-    # method 1 more secure
-    expense = Expense.query.filter_by(id =  id, user_id = get_jwt_identity()).first()
-    
-    # method 2
-    # expense= Expense.query.get(id)
-    
-    if not expense:
-        return jsonify({
-            "message": "expense not found"
-        }), 404
-        
-    # if expense.user_id != get_jwt_identity():
-    #     return jsonify({
-    #         "error": "unauthorized"
-    #     }),403
-        
     data= request.get_json()
     
-    expense.title = data.get("title", expense.title)
-    expense.amount = data.get("amount", expense.amount)
-    expense.category = data.get("category", expense.category)
-    
-    db.session.commit()
+    errors = validate_expense_update(data)
+    if  errors:
+        return jsonify({
+            "errors": errors
+        }),400
+            
+    expense = ExpenseService.update_expense(id, data, current_user_id)
     
     return jsonify({
         "message": "expense updated",
         "expense": expense.to_dict()
-    })
+    }),200
     
-# deleting the expense by id
+    
+# deleting the expense
 @expense_bp.route("/expenses/<int:id>", methods=["DELETE"])
 @jwt_required()
 def delete_expense(id):
     
-    # expense = Expense.query.get(id)
-    expense = Expense.query.filter_by(id = id, user_id = get_jwt_identity()).first()
+    current_user_id = int(get_jwt_identity())
     
-    if not expense:
-        return jsonify({
-            "message": "expense not found"
-        }), 404
-    
-    # if expense.user_id != get_jwt_identity():
-    #     return jsonify({
-    #         "error": "unauthorized"
-    #     })
-        
-    db.session.delete(expense)
-    db.session.commit()
+    ExpenseService.delete_expense(id, current_user_id)
     
     return jsonify({
         "message": "expense deleted successfully"
-    })
+    }),200
+    
+
+@expense_bp.route("/expenses/filter", methods=["GET"])
+@jwt_required()
+def filter_expenses():
+    current_user_id = int(get_jwt_identity())
+    
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+    
+    errors = validate_date_filter(start_date, end_date)
+    if errors:
+        return jsonify({
+            "errors": errors
+        }), 400
+    
+    expenses = ExpenseService.filter_expenses_by_date(start_date, end_date, current_user_id)
+    
+    return jsonify([expense.to_dict() for expense in expenses]), 200
+
+
+@expense_bp.route("/expenses/summary", methods=["GET"])
+@jwt_required()
+def monthly_summary():
+        
+    current_user_id = int(get_jwt_identity())
+        
+    year = request.args.get("year", type=int)
+    month = request.args.get("month", type=int)
+    
+    if not year or not month:
+        raise BadRequest("Year and month are required")
+    
+    summary = ExpenseService.get_monthly_expense_summary(current_user_id, year, month)
+    return jsonify(summary), 200
