@@ -1,15 +1,18 @@
+
 from flask import request, jsonify, Blueprint
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity
 )
+from flasgger import swag_from
 from werkzeug.exceptions import NotFound, Forbidden, BadRequest
 from app.services.expense_service import ExpenseService
 from app.validators.expense_validator import (
     validate_expense, 
     validate_expense_update, 
     validate_date_filter,
-    validate_pagination
+    validate_pagination,
+    validate_search
 )
 
 from app import db
@@ -20,6 +23,7 @@ expense_bp = Blueprint("expense_bp", __name__)
 # creating an expense
 @expense_bp.route("/expenses", methods=["POST"])
 @jwt_required()
+@swag_from("../docs/expenses/create_expense.yml")
 def add_expense():
     current_user_id = int(get_jwt_identity())
     data = request.get_json()
@@ -41,6 +45,7 @@ def add_expense():
 # GET all expenses
 @expense_bp.route("/expenses", methods=["GET"])
 @jwt_required()
+@swag_from("../docs/expenses/get_expenses.yml")
 def get_expenses():
     
     current_user_id = int(get_jwt_identity())
@@ -63,6 +68,7 @@ def get_expenses():
 # getting a single expense
 @expense_bp.route("/expenses/<int:id>", methods=["GET"])
 @jwt_required()
+@swag_from("../docs/expenses/get_single.yml")
 def get_single_expense(id):
     
     current_user_id = int(get_jwt_identity())
@@ -75,6 +81,7 @@ def get_single_expense(id):
 # updating the expense
 @expense_bp.route("/expenses/<int:id>", methods=["PUT"])
 @jwt_required()
+@swag_from("../docs/expenses/update.yml")
 def update_expense(id):
     current_user_id= int(get_jwt_identity())
     
@@ -97,6 +104,7 @@ def update_expense(id):
 # deleting the expense
 @expense_bp.route("/expenses/<int:id>", methods=["DELETE"])
 @jwt_required()
+@swag_from("../docs/expenses/delete.yml")
 def delete_expense(id):
     
     current_user_id = int(get_jwt_identity())
@@ -108,8 +116,10 @@ def delete_expense(id):
     }),200
     
 
+# filtering the expenses by date
 @expense_bp.route("/expenses/filter", methods=["GET"])
 @jwt_required()
+@swag_from("../docs/expenses/filter.yml")
 def filter_expenses():
     current_user_id = int(get_jwt_identity())
     
@@ -144,8 +154,10 @@ def filter_expenses():
     }), 200
 
     
+# filtering the expenses by month and year and getting summary by month
 @expense_bp.route("/expenses/summary", methods=["GET"])
 @jwt_required()
+@swag_from("../docs/expenses/monthly_summary.yml")
 def monthly_summary():
         
     current_user_id = int(get_jwt_identity())
@@ -168,13 +180,23 @@ def monthly_summary():
     return jsonify(summary), 200
 
 
+# searching expenses by keyword
 @expense_bp.route("/expenses/search", methods=["GET"])
 @jwt_required()
+@swag_from("../docs/expenses/search.yml")
 def search_expenses():
     current_user_id = int(get_jwt_identity())
-    keyword = request.args.get("keyword", "")
+    keyword = request.args.get("keyword", type=str)
     page = request.args.get("page", default=1, type=int)
     per_page = request.args.get("per_page", default=10, type=int)
+    
+    search_errors = validate_search(keyword)
+    if search_errors:
+        return jsonify({
+            "errors": search_errors
+        }), 400
+
+    keyword = keyword.strip()
 
     pagination_errors = validate_pagination(page, per_page)
     if pagination_errors:
@@ -182,16 +204,15 @@ def search_expenses():
             "errors": pagination_errors
         }), 400
 
-    expenses = ExpenseService.search_expenses(keyword, current_user_id, page, per_page)
+    expenses = ExpenseService.search_expenses(current_user_id, keyword, page, per_page)
 
-    return jsonify({
-        "message": "expenses retrieved successfully",
-        **expenses
-    }), 200
+    return jsonify(expenses), 200
     
     
+# analytics route
 @expense_bp.route("/expenses/analytics", methods=["GET"])
 @jwt_required()
+@swag_from("../docs/expenses/analytics.yml")
 def get_analytics():    
     current_user_id = int(get_jwt_identity())
     

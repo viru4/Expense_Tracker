@@ -1,0 +1,52 @@
+﻿tags:
+  - Authentication
+summary: Get logged-in user profile
+description: Returns profile data for the authenticated user.
+security:
+  - Bearer: []
+produces:
+  - application/json
+responses:
+  200:
+    description: Profile fetched successfully.
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Profile route accessed
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: viru_01
+            email:
+              type: string
+              example: viru@example.com
+  401:
+    description: Missing, invalid, or expired JWT token.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      example:
+        error: Unauthorised
+        message: Token is missing
+  500:
+    description: Unexpected server error.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+

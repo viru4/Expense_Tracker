@@ -1,0 +1,141 @@
+﻿tags:
+  - Expenses
+summary: Filter expenses by date range
+description: Returns paginated expenses filtered by optional start and end dates in DD-MM-YYYY format.
+security:
+  - Bearer: []
+produces:
+  - application/json
+parameters:
+  - name: start_date
+    in: query
+    type: string
+    required: false
+    description: Start date in DD-MM-YYYY.
+    example: 01-06-2026
+  - name: end_date
+    in: query
+    type: string
+    required: false
+    description: End date in DD-MM-YYYY.
+    example: 30-06-2026
+  - name: page
+    in: query
+    type: integer
+    required: false
+    default: 1
+    minimum: 1
+    example: 1
+  - name: per_page
+    in: query
+    type: integer
+    required: false
+    default: 10
+    minimum: 1
+    maximum: 100
+    example: 10
+responses:
+  200:
+    description: Filtered expenses retrieved successfully.
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: expenses retrieved successfully
+        data:
+          type: array
+          items:
+            $ref: '#/definitions/Expense'
+        pagination:
+          $ref: '#/definitions/Pagination'
+  400:
+    description: Invalid date or pagination parameters.
+    schema:
+      type: object
+      properties:
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+  401:
+    description: Missing, invalid, or expired JWT token.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  404:
+    description: No expenses found in date range.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  500:
+    description: Unexpected server error.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+definitions:
+  Expense:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 14
+      title:
+        type: string
+        example: Grocery shopping
+      amount:
+        type: number
+        format: float
+        example: 42.75
+      category:
+        type: string
+        example: Food
+      user_id:
+        type: integer
+        example: 1
+      created_at:
+        type: string
+        example: 27 June 2026, 10:30 AM
+  Pagination:
+    type: object
+    properties:
+      page:
+        type: integer
+        example: 1
+      per_page:
+        type: integer
+        example: 10
+      total_pages:
+        type: integer
+        example: 1
+      total_items:
+        type: integer
+        example: 3
+      has_next:
+        type: boolean
+        example: false
+      has_prev:
+        type: boolean
+        example: false
+      next_page:
+        type: integer
+        x-nullable: true
+        example: null
+      prev_page:
+        type: integer
+        x-nullable: true
+        example: null
+
+

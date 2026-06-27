@@ -1,0 +1,66 @@
+﻿tags:
+  - Authentication
+summary: Log in a user
+description: Authenticates a user and returns a JWT access token.
+consumes:
+  - application/json
+produces:
+  - application/json
+parameters:
+  - in: body
+    name: body
+    required: true
+    schema:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: viru@example.com
+        password:
+          type: string
+          example: Strong@123
+responses:
+  200:
+    description: Login successful.
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: login successful
+        access_token:
+          type: string
+          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+  400:
+    description: Validation error or missing request payload.
+    schema:
+      type: object
+      properties:
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+  401:
+    description: Invalid credentials.
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+      example:
+        message: "401 Unauthorized: Invalid email or password"
+  500:
+    description: Unexpected server error.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+

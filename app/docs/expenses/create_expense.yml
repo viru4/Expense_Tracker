@@ -1,0 +1,95 @@
+﻿tags:
+  - Expenses
+summary: Create an expense
+description: Creates an expense for the authenticated user.
+security:
+  - Bearer: []
+consumes:
+  - application/json
+produces:
+  - application/json
+parameters:
+  - in: body
+    name: body
+    required: true
+    schema:
+      type: object
+      required:
+        - title
+        - amount
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          example: Grocery shopping
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+          example: 42.75
+        category:
+          type: string
+          example: Food
+responses:
+  201:
+    description: Expense created successfully.
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: expense added successfully
+        expense:
+          $ref: '#/definitions/Expense'
+  400:
+    description: Validation error.
+    schema:
+      type: object
+      properties:
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+  401:
+    description: Missing, invalid, or expired JWT token.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  500:
+    description: Unexpected server error.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+definitions:
+  Expense:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 14
+      title:
+        type: string
+        example: Grocery shopping
+      amount:
+        type: number
+        format: float
+        example: 42.75
+      category:
+        type: string
+        example: Food
+      user_id:
+        type: integer
+        example: 1
+      created_at:
+        type: string
+        example: 27 June 2026, 10:30 AM
+
+

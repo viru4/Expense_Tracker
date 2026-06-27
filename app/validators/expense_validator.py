@@ -32,6 +32,7 @@ def validate_expense(data):
 
     return errors
 
+
 # validation for updating an expense
 def validate_expense_update(data):
     errors = {}
@@ -95,4 +96,24 @@ def validate_pagination(page, per_page):
         elif per_page > 100:
             errors["per_page"] = "Per page must be under 100"
             
+    return errors
+
+
+def validate_search(search):
+    errors = {}
+
+    if search is not None:
+
+        if not isinstance(search, str):
+            errors["search"] = "Search must be a string"
+
+        elif len(search.strip()) == 0:
+            errors["search"] = "Search cannot be blank"
+
+        elif len(search.strip()) < 2:
+            errors["search"] = "Search must be at least 2 characters"
+
+        elif len(search.strip()) > 100:
+            errors["search"] = "Search must be under 100 characters"
+
     return errors

@@ -1,0 +1,107 @@
+﻿tags:
+  - Expenses
+summary: Update an expense
+description: Updates one expense by id for the authenticated user.
+security:
+  - Bearer: []
+consumes:
+  - application/json
+produces:
+  - application/json
+parameters:
+  - name: id
+    in: path
+    type: integer
+    required: true
+    description: Expense id.
+    example: 14
+  - in: body
+    name: body
+    required: true
+    schema:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          example: Supermarket shopping
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+          example: 49.90
+        category:
+          type: string
+          example: Food
+responses:
+  200:
+    description: Expense updated successfully.
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: expense updated
+        expense:
+          $ref: '#/definitions/Expense'
+  400:
+    description: Validation error.
+    schema:
+      type: object
+      properties:
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+  401:
+    description: Missing, invalid, or expired JWT token.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  404:
+    description: Expense not found.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  500:
+    description: Unexpected server error.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+definitions:
+  Expense:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 14
+      title:
+        type: string
+        example: Supermarket shopping
+      amount:
+        type: number
+        format: float
+        example: 49.9
+      category:
+        type: string
+        example: Food
+      user_id:
+        type: integer
+        example: 1
+      created_at:
+        type: string
+        example: 27 June 2026, 10:30 AM
+
+

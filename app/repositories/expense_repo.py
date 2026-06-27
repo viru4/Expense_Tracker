@@ -1,7 +1,7 @@
 from app import db
 from app.models.expense_model import Expense
 from datetime import datetime
-from sqlalchemy import extract, func
+from sqlalchemy import extract, func, or_
 
 class ExpenseRepository:
     
@@ -126,9 +126,15 @@ class ExpenseRepository:
     
     @staticmethod
     def search_expenses(current_user_id, keyword, page=1, per_page=10):
+        
+        keyword = keyword.strip()
+        
         query = Expense.query.filter(
             Expense.user_id == current_user_id,
-            Expense.title.ilike(f"%{keyword}%")
+            or_(
+                Expense.title.ilike(f"%{keyword}%"),
+                Expense.category.ilike(f"%{keyword}%")
+            )
         )
 
         pagination = query.order_by(Expense.created_at.desc()).paginate(

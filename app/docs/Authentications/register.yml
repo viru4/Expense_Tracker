@@ -1,0 +1,87 @@
+﻿tags:
+  - Authentication
+summary: Register a new user
+description: Creates a user account after validating username, email, and password.
+consumes:
+  - application/json
+produces:
+  - application/json
+parameters:
+  - in: body
+    name: body
+    required: true
+    schema:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 20
+          example: viru_01
+        email:
+          type: string
+          format: email
+          example: viru@example.com
+        password:
+          type: string
+          minLength: 6
+          maxLength: 20
+          description: Must include uppercase, lowercase, number, and special character.
+          example: Strong@123
+responses:
+  201:
+    description: User registered successfully.
+    schema:
+      type: object
+      properties:
+        "message ":
+          type: string
+          example: user registered successfully
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: viru_01
+            email:
+              type: string
+              example: viru@example.com
+  400:
+    description: Validation error or missing request payload.
+    schema:
+      type: object
+      properties:
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+      example:
+        errors:
+          email: Invalid email format
+  409:
+    description: User with this email already exists.
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+      example:
+        message: "409 Conflict: User with this email already exists"
+  500:
+    description: Unexpected server error.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+

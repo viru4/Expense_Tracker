@@ -1,0 +1,63 @@
+﻿tags:
+  - Expenses
+summary: Get expense analytics
+description: Returns month-wise aggregates for the authenticated user.
+security:
+  - Bearer: []
+produces:
+  - application/json
+responses:
+  200:
+    description: Analytics retrieved successfully.
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: analytics retrieved successfully
+        analytics:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+                example: 2026-06
+              total_amount:
+                type: number
+                format: float
+                example: 583.5
+              number_of_expenses:
+                type: integer
+                example: 12
+              average_spent:
+                type: number
+                format: float
+                example: 48.625
+              max_spent:
+                type: number
+                format: float
+                example: 220.0
+              min_spent:
+                type: number
+                format: float
+                example: 8.5
+  401:
+    description: Missing, invalid, or expired JWT token.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  500:
+    description: Unexpected server error.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+

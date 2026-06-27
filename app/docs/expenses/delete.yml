@@ -1,0 +1,53 @@
+﻿tags:
+  - Expenses
+summary: Delete an expense
+description: Deletes one expense by id for the authenticated user.
+security:
+  - Bearer: []
+produces:
+  - application/json
+parameters:
+  - name: id
+    in: path
+    type: integer
+    required: true
+    description: Expense id.
+    example: 14
+responses:
+  200:
+    description: Expense deleted successfully.
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: expense deleted successfully
+  401:
+    description: Missing, invalid, or expired JWT token.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  404:
+    description: Expense not found.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  500:
+    description: Unexpected server error.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+

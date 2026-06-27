@@ -106,7 +106,7 @@ class ExpenseService:
         )
         
         if not pagination.items:
-            raise NotFound("No expenses found with the given keyword")
+            raise NotFound(f"No expenses found with the matching '{keyword}'")
         
         return paginate_response(pagination, [expense.to_dict() for expense in pagination.items])
     

@@ -1,0 +1,154 @@
+﻿tags:
+  - Expenses
+summary: Get monthly expense summary
+description: Returns monthly totals and paginated expenses for a specific year and month.
+security:
+  - Bearer: []
+produces:
+  - application/json
+parameters:
+  - name: year
+    in: query
+    type: integer
+    required: true
+    description: Four-digit year.
+    example: 2026
+  - name: month
+    in: query
+    type: integer
+    required: true
+    description: Month number between 1 and 12.
+    example: 6
+  - name: page
+    in: query
+    type: integer
+    required: false
+    default: 1
+    minimum: 1
+    example: 1
+  - name: per_page
+    in: query
+    type: integer
+    required: false
+    default: 10
+    minimum: 1
+    maximum: 100
+    example: 10
+responses:
+  200:
+    description: Monthly summary retrieved successfully.
+    schema:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            year:
+              type: integer
+              example: 2026
+            month:
+              type: integer
+              example: 6
+            total_amount:
+              type: number
+              format: float
+              example: 583.5
+            number_of_expenses:
+              type: integer
+              example: 12
+            expenses:
+              type: array
+              items:
+                $ref: '#/definitions/Expense'
+        pagination:
+          $ref: '#/definitions/Pagination'
+  400:
+    description: Missing year or month, or invalid pagination.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  401:
+    description: Missing, invalid, or expired JWT token.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  404:
+    description: No expenses found for given month and year.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  500:
+    description: Unexpected server error.
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+definitions:
+  Expense:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 14
+      title:
+        type: string
+        example: Grocery shopping
+      amount:
+        type: number
+        format: float
+        example: 42.75
+      category:
+        type: string
+        example: Food
+      user_id:
+        type: integer
+        example: 1
+      created_at:
+        type: string
+        example: 27 June 2026, 10:30 AM
+  Pagination:
+    type: object
+    properties:
+      page:
+        type: integer
+        example: 1
+      per_page:
+        type: integer
+        example: 10
+      total_pages:
+        type: integer
+        example: 2
+      total_items:
+        type: integer
+        example: 12
+      has_next:
+        type: boolean
+        example: true
+      has_prev:
+        type: boolean
+        example: false
+      next_page:
+        type: integer
+        x-nullable: true
+        example: 2
+      prev_page:
+        type: integer
+        x-nullable: true
+        example: null
+
+
