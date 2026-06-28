@@ -60,3 +60,15 @@ def validate_login_data(data):
         errors["password"] = "Password is required"
     
     return errors
+
+
+# Validation function for deleting an account
+def validate_delete_account(data):
+    errors = {}
+
+    password = data.get("password")
+
+    if not password:
+        errors["password"] = "Password is required to delete account"
+
+    return errors

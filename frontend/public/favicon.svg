@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48">
+  <defs>
+    <linearGradient id="wallet-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+    <linearGradient id="coin-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+  </defs>
+  <!-- Gold coin peaking out -->
+  <circle cx="15" cy="8" r="4.5" fill="url(#coin-grad)" />
+  <path d="M15 5.5v5M13.5 7h3a1 1 0 0 1 0 2h-3" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  
+  <!-- Wallet body -->
+  <rect x="2" y="10" width="20" height="11" rx="2" fill="url(#wallet-grad)" />
+  <path d="M20 10V7.5A1.5 1.5 0 0 0 18.5 6H4a2 2 0 0 1 0-4h13.5A1.5 1.5 0 0 1 19 3.5V10h1z" fill="url(#wallet-grad)" opacity="0.9" />
+  
+  <!-- Wallet fastener button -->
+  <circle cx="18" cy="15.5" r="1.5" fill="#ffffff" />
+  <circle cx="18" cy="15.5" r="0.75" fill="#8b5cf6" />
+</svg>

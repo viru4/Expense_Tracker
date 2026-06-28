@@ -1,3 +1,4 @@
+from werkzeug.exceptions import Unauthorized
 from app import db, bcrypt
 from app.models.user_model import User
 
@@ -36,4 +37,15 @@ class AuthRepository:
     @staticmethod
     def get_user_by_id(user_id):
         user = User.query.filter_by(id=user_id).first()
+        return user
+
+    
+    @staticmethod
+    def delete_user(user_id):
+        user = User.query.filter_by(id=user_id).first()
+        if not user:
+            raise Unauthorized("User not found")
+        db.session.delete(user)
+        db.session.commit()
+
         return user

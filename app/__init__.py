@@ -5,6 +5,7 @@ from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flasgger import Swagger
 from dotenv import load_dotenv
+from app.config import get_config
 
 from app.utils.error_handlers import (
     register_error_handlers
@@ -20,9 +21,9 @@ bcrypt= Bcrypt()
 
 def create_app():
     app= Flask(__name__)
-    load_dotenv()
+    # load_dotenv()
     
-    app.config.from_object("app.config.Config")
+    app.config.from_object(get_config())
 
     db.init_app(app)
     

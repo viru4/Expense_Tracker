@@ -64,3 +64,17 @@ def profile():
         "message": "Profile route accessed",
         "user": user.to_dict()
     })
+
+
+# delete user route
+@auth_bp.route("/delete-account", methods=["DELETE"])
+@jwt_required()
+@swag_from("../docs/Authentications/delete_account.yml")
+def delete_account():
+    current_user_id = get_jwt_identity()
+    
+    user = auth_service.AuthService.delete_user(current_user_id)
+    return jsonify({
+        "message": "Account deleted successfully",
+        "user": user.to_dict()
+    })

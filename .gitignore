@@ -1,9 +1,29 @@
+# Python
 .venv/
 venv/
 __pycache__/
 *.pyc
-.vscode/
+*.pyo
+
+# Environment
 .env
+
+# IDE
+.vscode/
+.idea/
+
+# SQLite (local dev fallback)
 instance/*.db
 instance/*.sqlite3
 instance/*.sqlite
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
